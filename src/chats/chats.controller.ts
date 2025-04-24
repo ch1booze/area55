@@ -1,17 +1,39 @@
-import { Controller, Post, Query, UploadedFile } from '@nestjs/common';
-import { MessagesService } from './messages.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Query,
+  Render,
+  UploadedFile,
+} from '@nestjs/common';
+import { ChatsService } from './chats.service';
 import {
   ApiTags,
   ApiOperation,
   ApiQuery,
   ApiConsumes,
   ApiBody,
+  ApiExcludeEndpoint,
 } from '@nestjs/swagger';
 
-@ApiTags('messages')
-@Controller('messages')
-export class MessagesController {
-  constructor(private readonly messagesService: MessagesService) {}
+@ApiTags('chats')
+@Controller('chats')
+export class ChatsController {
+  constructor(private readonly chatsService: ChatsService) {}
+
+  @ApiExcludeEndpoint()
+  @Get()
+  @Render('chats')
+  async getChatPage() {
+    const gottenChats = await this.chatsService.getChats();
+    return {
+      chats: gottenChats.map((c) => ({
+        query: c.query,
+        reply: c.reply,
+        time: c.createdAt,
+      })),
+    };
+  }
 
   @Post()
   @ApiOperation({
@@ -37,10 +59,10 @@ export class MessagesController {
       },
     },
   })
-  async processMessage(
+  async createChat(
     @Query('query') query?: string,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return await this.messagesService.processMessage({ query, file });
+    return await this.chatsService.createChat({ query, file });
   }
 }

@@ -1,6 +1,6 @@
 import { Controller, Post, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { SigninUserByEmailDto } from './users.dto';
+import { SigninUserByEmailDto } from './users.interfaces';
 
 @Controller('users')
 export class UsersController {

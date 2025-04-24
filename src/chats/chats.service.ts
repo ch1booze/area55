@@ -1,19 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   ReadImageEvent,
   ScheduleMessageEvent,
   SetReminderEvent,
   TranscribeAudioEvent,
-} from './messages.dto';
+} from './chats.interfaces';
 import { Groq } from '@llamaindex/groq';
 import { StartEvent, StopEvent, Workflow } from 'llamaindex';
+import { Repository } from 'typeorm';
+import { Chat } from './chats.entity';
 
 @Injectable()
-export class MessagesService {
-  constructor(private readonly configService: ConfigService) {}
+export class ChatsService {
+  constructor(
+    @Inject('CHAT_REPOSITORY') private chatRepository: Repository<Chat>,
+    private readonly configService: ConfigService,
+  ) {}
 
-  async processMessage(processMessageDto: {
+  async createChat(createChatDto: {
     query?: string;
     file?: Express.Multer.File;
   }) {
@@ -22,17 +27,28 @@ export class MessagesService {
       model: 'llama-3.1-8b-instant',
     });
 
-    const detectIntentTool = async ({}) => {};
-
     const detectIntent = async (
       _: unknown,
       ev: StartEvent<{ query?: string; file?: Express.Multer.File }>,
     ) => {
-      const prompt = `Given the input: "${ev.data.query ?? ''}", determine if the user wants to schedule a message, transcribe audio, read image contents, or set a reminder. Respond with only the intent.`;
-      console.log(prompt);
+      const prompt = `
+        Given the input: "${ev.data.query ?? ''}", determine the user's intent.
+        Respond with only one of the following options: schedule a message, transcribe audio, read image contents, and set a reminder.
+        Respond with only the option text, and nothing else.
+        `;
       const response = await llm.complete({ prompt });
-      const intent = response.text.trim().toLowerCase();
-      console.log('Intent:', intent);
+      const rawIntent = response.text.trim().toLowerCase();
+      let intent: string | null = null;
+      if (rawIntent.includes('schedule')) {
+        intent = 'schedule a message';
+      } else if (rawIntent.includes('transcribe')) {
+        intent = 'transcribe audio';
+      } else if (rawIntent.includes('image')) {
+        intent = 'read image contents';
+      } else if (rawIntent.includes('reminder')) {
+        intent = 'set a reminder';
+      }
+
       switch (intent) {
         case 'schedule a message':
           return new ScheduleMessageEvent({
@@ -54,9 +70,7 @@ export class MessagesService {
             time: new Date().toISOString(),
           });
         default:
-          return new StopEvent<{ result: string }>({
-            result: 'Invalid intent.',
-          });
+          return new StopEvent<string>('Invalid intent.');
       }
     };
 
@@ -64,36 +78,28 @@ export class MessagesService {
       _: unknown,
       ev: ScheduleMessageEvent,
     ) => {
-      return new StopEvent<{ result: string }>({
-        result: JSON.stringify(ev.data),
-      });
+      return new StopEvent<string>(JSON.stringify(ev.data));
     };
 
     const handleTranscribeAudio = async (
       _: unknown,
       ev: TranscribeAudioEvent,
     ) => {
-      return new StopEvent<{ result: string }>({
-        result: JSON.stringify(ev.data),
-      });
+      return new StopEvent<string>(JSON.stringify(ev.data));
     };
 
     const handleReadImage = async (_: unknown, ev: ReadImageEvent) => {
-      return new StopEvent<{ result: string }>({
-        result: JSON.stringify(ev.data),
-      });
+      return new StopEvent<string>(JSON.stringify(ev.data));
     };
 
     const handleSetReminder = async (_: unknown, ev: SetReminderEvent) => {
-      return new StopEvent<{ result: string }>({
-        result: JSON.stringify(ev.data),
-      });
+      return new StopEvent<string>(JSON.stringify(ev.data));
     };
 
     const workflow = new Workflow<
       unknown,
       { query?: string; file?: Express.Multer.File },
-      { result: string }
+      string
     >();
 
     workflow.addStep(
@@ -104,7 +110,7 @@ export class MessagesService {
           TranscribeAudioEvent,
           ReadImageEvent,
           SetReminderEvent,
-          StopEvent<{ result: string }>,
+          StopEvent<string>,
         ],
       },
       detectIntent,
@@ -113,7 +119,7 @@ export class MessagesService {
     workflow.addStep(
       {
         inputs: [ScheduleMessageEvent],
-        outputs: [StopEvent<{ result: string }>],
+        outputs: [StopEvent<string>],
       },
       handleScheduleMessage,
     );
@@ -121,7 +127,7 @@ export class MessagesService {
     workflow.addStep(
       {
         inputs: [TranscribeAudioEvent],
-        outputs: [StopEvent<{ result: string }>],
+        outputs: [StopEvent<string>],
       },
       handleTranscribeAudio,
     );
@@ -129,7 +135,7 @@ export class MessagesService {
     workflow.addStep(
       {
         inputs: [ReadImageEvent],
-        outputs: [StopEvent<{ result: string }>],
+        outputs: [StopEvent<string>],
       },
       handleReadImage,
     );
@@ -137,12 +143,23 @@ export class MessagesService {
     workflow.addStep(
       {
         inputs: [SetReminderEvent],
-        outputs: [StopEvent<{ result: string }>],
+        outputs: [StopEvent<string>],
       },
       handleSetReminder,
     );
 
-    const result = await workflow.run(processMessageDto);
-    return result.data;
+    const response = await workflow.run(createChatDto);
+    const reply = response.data;
+
+    const chat = this.chatRepository.create({
+      query: createChatDto.query,
+      reply,
+      file: createChatDto.file?.buffer,
+    });
+    return await this.chatRepository.save(chat);
+  }
+
+  async getChats() {
+    return await this.chatRepository.find();
   }
 }
