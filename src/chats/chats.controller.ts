@@ -5,6 +5,7 @@ import {
   Query,
   Render,
   UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import {
@@ -15,6 +16,7 @@ import {
   ApiBody,
   ApiExcludeEndpoint,
 } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('chats')
 @Controller('chats')
@@ -43,7 +45,7 @@ export class ChatsController {
   @ApiQuery({
     name: 'query',
     type: String,
-    required: true,
+    required: false,
     description: 'The query or message to process',
   })
   @ApiConsumes('multipart/form-data')
@@ -59,8 +61,9 @@ export class ChatsController {
       },
     },
   })
+  @UseInterceptors(FileInterceptor('file'))
   async createChat(
-    @Query('query') query?: string,
+    @Query('query') query: string = '',
     @UploadedFile() file?: Express.Multer.File,
   ) {
     return await this.chatsService.createChat({ query, file });
