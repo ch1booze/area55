@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import { Chat } from './chats.entity';
 import { Intent } from './chats.interfaces';
+import { Groq } from '@llamaindex/groq';
 
 @Injectable()
 export class ChatsService {
@@ -53,6 +54,25 @@ export class ChatsService {
     } else {
       if (!createChatDto.query) {
         throw new Error('Query is required');
+      }
+
+      const llm = new Groq({
+        apiKey: this.configService.get<string>('GROQ_API_KEY'),
+        model: 'llama-3.1-8b-instant',
+      });
+
+      const prompt = `
+        Given the input: "${createChatDto.query}", determine the user's intent.
+        Respond with only one of the following options: schedule a message, transcribe audio, read image contents, and set a reminder.
+        Respond with only the option text, and nothing else.
+        `;
+      const response = await llm.complete({ prompt });
+      const rawIntent = response.text.trim().toLowerCase();
+
+      if (rawIntent.includes('schedule')) {
+        intent = Intent.SCHEDULE_MESSAGE;
+      } else if (rawIntent.includes('reminder')) {
+        intent = Intent.SET_REMINDER;
       }
     }
   }
