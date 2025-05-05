@@ -66,6 +66,6 @@ export class ChatsController {
     @Query('query') query: string = '',
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return await this.chatsService.createChat({ query, file });
+    return await this.chatsService.createChat(query, file);
   }
 }

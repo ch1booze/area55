@@ -3,6 +3,8 @@ import { UsersModule } from './users/users.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { ChatsModule } from './chats/chats.module';
+import { FilesModule } from './files/files.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
 
 @Module({
   imports: [
@@ -10,6 +12,8 @@ import { ChatsModule } from './chats/chats.module';
     UsersModule,
     DatabaseModule,
     ChatsModule,
+    FilesModule,
+    ChatbotModule,
   ],
 })
 export class AppModule {}

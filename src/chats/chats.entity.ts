@@ -1,7 +1,8 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Intent } from './chats.interfaces';
 
 @Entity()
-export class Chat {
+export class ChatEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -11,9 +12,13 @@ export class Chat {
   @Column()
   query: string;
 
+  @Column({ type: 'enum', enum: Intent, default: Intent.UNKNOWN })
+  intent: Intent;
+
   @Column()
   reply: string;
 
-  @Column({ type: 'bytea', nullable: true })
-  file?: Buffer;
+  @Column({ type: 'text', nullable: true })
+  fileId?: string;
 }
+

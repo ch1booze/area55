@@ -1,83 +1,182 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
-import { Chat } from './chats.entity';
-import { Intent } from './chats.interfaces';
-import { Groq } from '@llamaindex/groq';
+import { ChatEntity } from './chats.entity';
+import {
+  AudioTypes,
+  ClassifyIntentPrompt,
+  ClassifyIntentResponse,
+  ImageTypes,
+  Intent,
+  IntentPrompts,
+} from './chats.interfaces';
+import { Groq } from 'groq-sdk';
+import { FilesService } from 'src/files/files.service';
+import { FileEntity } from 'src/files/files.entity';
+import { Groq as LlamaIndexGroq } from '@llamaindex/groq';
+import * as fs from 'fs';
+import * as tmp from 'tmp';
+import * as path from 'path';
 
 @Injectable()
 export class ChatsService {
+  private readonly groq: Groq;
+  private readonly llamaindexGroq: LlamaIndexGroq;
+
   constructor(
-    @Inject('CHAT_REPOSITORY') private chatRepository: Repository<Chat>,
+    @Inject('CHAT_REPOSITORY') private chatRepository: Repository<ChatEntity>,
     private readonly configService: ConfigService,
-  ) {}
+    private readonly filesService: FilesService,
+  ) {
+    this.groq = new Groq({
+      apiKey: this.configService.get<string>('GROQ_API_KEY'),
+    });
 
-  async createChat(createChatDto: {
-    query?: string;
-    file?: Express.Multer.File;
-  }) {
-    let prompt: string;
-    let intent: Intent;
+    this.llamaindexGroq = new LlamaIndexGroq({
+      apiKey: this.configService.get<string>('GROQ_API_KEY'),
+      model: 'llama3-8b-8192',
+    });
+  }
 
-    if (createChatDto.file) {
-      switch (createChatDto.file.mimetype) {
-        case 'image/jpeg':
-        case 'image/png':
-        case 'image/webp':
-        case 'image/gif':
-        case 'image/svg+xml':
-        case 'image/bmp':
-        case 'image/tiff':
-          if (createChatDto.query) {
-            prompt = `Read the image and answer the following question: ${createChatDto.query}`;
-          } else {
-            prompt = `Read the image and answer the following question: What is in the image?`;
-          }
-          intent = Intent.READ_IMAGE;
-          break;
-        case 'audio/wav':
-        case 'audio/mpeg':
-        case 'audio/ogg':
-        case 'audio/webm':
-        case 'audio/mp3':
-        case 'audio/m4a':
-          if (createChatDto.query) {
-            prompt = `Transcribe the audio and answer the following question: ${createChatDto.query}`;
-          } else {
-            prompt = `Transcribe the audio and answer the following question: What is in the audio?`;
-          }
-          intent = Intent.TRANSCRIBE_AUDIO;
-          break;
-        default:
-          throw new Error('Unsupported file type');
+  private async classifyIntent(query: string) {
+    const response = await this.llamaindexGroq.chat({
+      messages: [
+        { role: 'system', content: ClassifyIntentPrompt },
+        { role: 'user', content: query },
+      ],
+      responseFormat: { type: 'json_object' },
+    });
+
+    const responseJson = JSON.parse(
+      response.message.content as string,
+    ) as ClassifyIntentResponse;
+
+    return responseJson.intent;
+  }
+
+  private async generateResponse(
+    intent: Intent,
+    query: string,
+    file?: Express.Multer.File,
+  ) {
+    if (intent === Intent.TRANSCRIBE_AUDIO) {
+      const createTempDir = (): Promise<{
+        path: string;
+        cleanupCallback: () => void;
+      }> => {
+        return new Promise((resolve, reject) => {
+          tmp.dir({ unsafeCleanup: true }, (err, path, cleanupCallback) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve({ path, cleanupCallback });
+            }
+          });
+        });
+      };
+
+      let cleanupCallback: () => void;
+      try {
+        const { path: tmpDir, cleanupCallback: cb } = await createTempDir();
+        cleanupCallback = cb;
+
+        const tmpFile = path.join(tmpDir, file!.originalname);
+        await fs.promises.writeFile(tmpFile, file!.buffer);
+
+        const response = await this.groq.audio.transcriptions.create({
+          file: fs.createReadStream(tmpFile),
+          model: 'whisper-large-v3-turbo',
+        });
+
+        return response.text;
+      } catch (error) {
+        console.error('Error during transcription:', error);
+        throw error;
+      } finally {
+        if (cleanupCallback!) {
+          cleanupCallback();
+        }
       }
-    } else {
-      if (!createChatDto.query) {
-        throw new Error('Query is required');
-      }
+    } else if (intent === Intent.READ_IMAGE && file?.buffer) {
+      const base64Image = file.buffer.toString('base64');
+      const mimetype = file.mimetype;
 
-      const llm = new Groq({
-        apiKey: this.configService.get<string>('GROQ_API_KEY'),
-        model: 'llama-3.1-8b-instant',
+      const response = await this.groq.chat.completions.create({
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: query },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:${mimetype};base64,${base64Image}`,
+                },
+              },
+            ],
+          },
+        ],
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
       });
 
-      const prompt = `
-        Given the input: "${createChatDto.query}", determine the user's intent.
-        Respond with only one of the following options: schedule a message, transcribe audio, read image contents, and set a reminder.
-        Respond with only the option text, and nothing else.
-        `;
-      const response = await llm.complete({ prompt });
-      const rawIntent = response.text.trim().toLowerCase();
-
-      if (rawIntent.includes('schedule')) {
-        intent = Intent.SCHEDULE_MESSAGE;
-      } else if (rawIntent.includes('reminder')) {
-        intent = Intent.SET_REMINDER;
-      }
+      return response.choices[0].message.content;
     }
+
+    console.log('Got here too');
+    const response = await this.llamaindexGroq.chat({
+      messages: [
+        { role: 'system', content: IntentPrompts[intent] },
+        { role: 'user', content: query },
+      ],
+      responseFormat: { type: 'json_object' },
+    });
+
+    return response.message.content;
+  }
+
+  async createChat(query?: string, file?: Express.Multer.File) {
+    let intent: Intent;
+    let fileEntity: FileEntity | null = null;
+
+    if (file) {
+      fileEntity = await this.filesService.uploadFile(file);
+      if (ImageTypes.includes(fileEntity.mimetype)) {
+        if (!query) {
+          query = 'Describe the image';
+        }
+        intent = Intent.READ_IMAGE;
+      } else if (AudioTypes.includes(fileEntity.mimetype)) {
+        if (!query) {
+          query = 'Transcribe the audio';
+        }
+        intent = Intent.TRANSCRIBE_AUDIO;
+      } else {
+        throw new BadRequestException('Unsupported file type');
+      }
+    } else {
+      if (!query) {
+        throw new BadRequestException(
+          'Query is required when no file is provided',
+        );
+      }
+      intent = await this.classifyIntent(query);
+    }
+
+    const reply = await this.generateResponse(intent, query, file);
+    // const chatEntity = this.chatRepository.create({
+    //   query: query,
+    //   reply: reply,
+    //   intent: intent,
+    // fileId: fileEntity ? fileEntity.id : null,
+    // });
+
+    // await this.chatRepository.save(chatEntity);
+    // return chatEntity;
+
+    return { query, reply, intent };
   }
 
   async getChats() {
-    return await this.chatRepository.find();
+    return this.chatRepository.find();
   }
 }
