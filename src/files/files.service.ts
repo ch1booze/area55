@@ -9,12 +9,12 @@ export class FilesService {
   ) {}
 
   async uploadFile(file: Express.Multer.File) {
-    const fileEntity = this.fileRepository.create({
-      name: file.originalname,
-      size: file.size,
-      buffer: file.buffer,
-      mimetype: file.mimetype,
-    });
+    const fileEntity = new FileEntity();
+    fileEntity.name = file.originalname;
+    fileEntity.size = file.size;
+    fileEntity.buffer = file.buffer;
+    fileEntity.mimetype = file.mimetype;
+
     await this.fileRepository.save(fileEntity);
     return fileEntity;
   }

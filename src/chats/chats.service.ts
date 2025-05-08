@@ -122,7 +122,6 @@ export class ChatsService {
       return response.choices[0].message.content;
     }
 
-    console.log('Got here too');
     const response = await this.llamaindexGroq.chat({
       messages: [
         { role: 'system', content: IntentPrompts[intent] },
@@ -163,17 +162,14 @@ export class ChatsService {
     }
 
     const reply = await this.generateResponse(intent, query, file);
-    // const chatEntity = this.chatRepository.create({
-    //   query: query,
-    //   reply: reply,
-    //   intent: intent,
-    // fileId: fileEntity ? fileEntity.id : null,
-    // });
+    const chatEntity = new ChatEntity();
+    chatEntity.query = query;
+    chatEntity.intent = intent;
+    chatEntity.reply = JSON.stringify(reply);
+    chatEntity.fileId = fileEntity ? fileEntity.id : undefined;
 
-    // await this.chatRepository.save(chatEntity);
-    // return chatEntity;
-
-    return { query, reply, intent };
+    await this.chatRepository.save(chatEntity);
+    return chatEntity;
   }
 
   async getChats() {

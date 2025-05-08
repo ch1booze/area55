@@ -35,7 +35,8 @@ export const IntentPrompts: { [key in Intent]: string } = {
   }
   The recipient is the person or entity that the message is intended for.
   The message is the content of the message.
-  The time is the time at which the message should be sent. It should be in the format of "YYYY-MM-DD HH:MM:SS".
+  The time is the time at which the message should be sent. It should be in the ISO string format.
+  The current time is ${new Date().toISOString()}.
 
   If any of this information is missing, reply in that field as "MISSING".
   `,
@@ -48,7 +49,8 @@ export const IntentPrompts: { [key in Intent]: string } = {
     time: string,
   }
   The task is the thing that needs to be done.
-  The time is the time at which the reminder should be set. It should be in the format of "YYYY-MM-DD HH:MM:SS".
+  The time is the time at which the reminder should be set. It should be in the ISO string format.
+  The current time is ${new Date().toISOString()}.
 
   If any of this information is missing, reply in that field as "MISSING".
   `,
