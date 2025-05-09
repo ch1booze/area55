@@ -23,7 +23,6 @@ export class ChatbotController {
   ) {
     const VERIFY_TOKEN = 'token';
     if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-      console.log('WEBHOOK_VERIFIED');
       res.status(200).send(challenge);
     } else {
       res.sendStatus(400);
@@ -32,14 +31,7 @@ export class ChatbotController {
 
   @Post('webhook')
   @HttpCode(200)
-  async handleIncomingMessageWebhook(@Body() body: any) {
-    console.log('Incoming webhook:', JSON.stringify(body));
-    const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-    const phoneNumber = message?.from;
-    console.log('Message:', message);
-    console.log('Phone number:', phoneNumber);
-    if (phoneNumber && message?.type === 'text') {
-      await this.chatbotService.sendMessage(phoneNumber);
-    }
+  async handleIncomingMessageWebhook(@Body() body: object) {
+    return await this.chatbotService.handleIncomingMessage(body);
   }
 }

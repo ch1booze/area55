@@ -1,5 +1,4 @@
-export class SigninUserByEmailDto {
-  email: string;
-  firstName: string;
-  lastName: string;
+export class SigninUserByPhoneDto {
+  phoneNumber: string;
+  name: string;
 }

@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { UserEntity } from './users.entity';
 import { Repository } from 'typeorm';
-import { SigninUserByEmailDto } from './users.interfaces';
+import { SigninUserByPhoneDto } from './users.interfaces';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -11,21 +11,22 @@ export class UsersService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async signinUserByEmail(signinUserByEmailDto: SigninUserByEmailDto) {
-    const { email } = signinUserByEmailDto;
-    const user = await this.userRepository.findOne({ where: { email } });
-    if (user) {
-      throw new Error('User already exists');
-    }
-    return user;
-  }
+  async signinUserByPhone(dto: SigninUserByPhoneDto) {
+    const { phoneNumber, name } = dto;
 
-  async verifyUserByEmail(token: string) {
-    const user = await this.userRepository.findOne({ where: { email: token } });
-    if (!user) {
-      throw new Error('User not found');
+    const foundUserEntity = await this.userRepository.findOne({
+      where: { phoneNumber },
+    });
+
+    if (foundUserEntity) {
+      throw new ConflictException('User already exists');
     }
-    await this.userRepository.save(user);
-    return user;
+
+    const userEntity = new UserEntity();
+    userEntity.phoneNumber = phoneNumber;
+    userEntity.name = name;
+
+    await this.userRepository.save(userEntity);
+    return userEntity;
   }
 }

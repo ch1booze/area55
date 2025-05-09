@@ -5,12 +5,9 @@ export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: true })
-  email?: string;
-
   @Column()
   name: string;
 
-  @Column({ nullable: true })
-  phoneNumber?: string;
+  @Column()
+  phoneNumber: string;
 }
