@@ -31,7 +31,7 @@ export class ChatbotController {
 
   @Post('webhook')
   @HttpCode(200)
-  async handleIncomingMessageWebhook(@Body() body: object) {
+  async handleIncomingMessageWebhook(@Body() body: any) {
     return await this.chatbotService.handleIncomingMessage(body);
   }
 }

@@ -15,7 +15,7 @@ export class ChatbotService {
     this.apiToken = this.configService.get<string>('GRAPH_API_TOKEN')!;
   }
 
-  async handleIncomingMessage(body: object) {
+  async handleIncomingMessage(body: any) {
     const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
     if (!message) {
       throw new Error('Message not found in the payload');
