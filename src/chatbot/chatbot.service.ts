@@ -20,12 +20,13 @@ export class ChatbotService {
   }
 
   async handleIncomingMessage(body: any) {
+    console.log('Body:', body);
     const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
     if (!message) {
       throw new Error('Message not found in the payload');
     }
 
-    const name = body?.entry?.[0]?.changes?.[0]?.contacts?.[0]?.profile
+    const name = body?.entry?.[0]?.changes?.[0]?.value?.contacts?.[0]?.profile
       ?.name as string;
     const phoneNumber = message.from as string;
     const messageType = message.type as string;
