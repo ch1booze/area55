@@ -10,6 +10,7 @@ import { FileEntity } from './files/files.entity';
 import { ChatEntity } from './chats/chats.entity';
 import { CronModule } from './cron/cron.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { CronEntity } from './cron/cron.entity';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { ScheduleModule } from '@nestjs/schedule';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
-        entities: [UserEntity, FileEntity, ChatEntity],
+        entities: [UserEntity, FileEntity, ChatEntity, CronEntity],
         synchronize: true,
       }),
       inject: [ConfigService],
