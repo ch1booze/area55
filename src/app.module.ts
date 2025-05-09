@@ -8,6 +8,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './users/users.entity';
 import { FileEntity } from './files/files.entity';
 import { ChatEntity } from './chats/chats.entity';
+import { CronModule } from './cron/cron.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { ChatEntity } from './chats/chats.entity';
       }),
       inject: [ConfigService],
     }),
+    CronModule,
+    ScheduleModule.forRoot(),
   ],
 })
 export class AppModule {}

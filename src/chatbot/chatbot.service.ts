@@ -20,7 +20,7 @@ export class ChatbotService {
   }
 
   async handleIncomingMessage(body: any) {
-    console.log('Body:', body);
+    console.log('Body:', JSON.stringify(body));
     const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
     if (!message) {
       throw new Error('Message not found in the payload');
@@ -119,7 +119,7 @@ export class ChatbotService {
     }
   }
 
-  private async sendMessage(payload: any) {
+  async sendMessage(payload: any) {
     return await this.httpService.axiosRef.post(this.apiUrl, payload, {
       headers: {
         Authorization: `Bearer ${this.apiToken}`,
