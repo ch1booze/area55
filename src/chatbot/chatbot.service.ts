@@ -15,12 +15,12 @@ export class ChatbotService {
     this.apiToken = this.configService.get<string>('GRAPH_API_TOKEN')!;
   }
 
-  async sendMessage(toPhoneNumber: string, content: string) {
+  async sendMessage(toPhoneNumber: string) {
     const payload = {
       messaging_product: 'whatsapp',
       to: toPhoneNumber,
-      type: 'text',
-      text: { body: content },
+      type: 'template',
+      template: { name: 'hello_world', language: { code: 'en_US' } },
     };
 
     return await this.httpService.axiosRef.post(this.apiUrl, payload, {

@@ -35,9 +35,11 @@ export class ChatbotController {
   async handleIncomingMessageWebhook(@Body() body: any) {
     console.log('Incoming webhook:', JSON.stringify(body));
     const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-    const phoneNumber = message?.from as string;
+    const phoneNumber = message?.from;
+    console.log('Message:', message);
+    console.log('Phone number:', phoneNumber);
     if (phoneNumber && message?.type === 'text') {
-      await this.chatbotService.sendMessage(phoneNumber, 'Hi, I am Arial');
+      await this.chatbotService.sendMessage(phoneNumber);
     }
   }
 }
