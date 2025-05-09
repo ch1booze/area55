@@ -1,12 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { User } from './users.entity';
+import { Injectable } from '@nestjs/common';
+import { UserEntity } from './users.entity';
 import { Repository } from 'typeorm';
 import { SigninUserByEmailDto } from './users.interfaces';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @Inject('USER_REPOSITORY') private userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
   ) {}
 
   async signinUserByEmail(signinUserByEmailDto: SigninUserByEmailDto) {

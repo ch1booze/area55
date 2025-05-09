@@ -1,4 +1,4 @@
-import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import { ChatEntity } from './chats.entity';
@@ -17,6 +17,7 @@ import { Groq as LlamaIndexGroq } from '@llamaindex/groq';
 import * as fs from 'fs';
 import * as tmp from 'tmp';
 import * as path from 'path';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ChatsService {
@@ -24,7 +25,8 @@ export class ChatsService {
   private readonly llamaindexGroq: LlamaIndexGroq;
 
   constructor(
-    @Inject('CHAT_REPOSITORY') private chatRepository: Repository<ChatEntity>,
+    @InjectRepository(ChatEntity)
+    private chatRepository: Repository<ChatEntity>,
     private readonly configService: ConfigService,
     private readonly filesService: FilesService,
   ) {

@@ -54,8 +54,8 @@ export const IntentPrompts: { [key in Intent]: string } = {
 
   If any of this information is missing, reply in that field as "MISSING".
   `,
-  [Intent.READ_IMAGE]: `Describe the image."`,
-  [Intent.TRANSCRIBE_AUDIO]: `Transcribe and summarize the audio."`,
+  [Intent.READ_IMAGE]: `Describe the image.`,
+  [Intent.TRANSCRIBE_AUDIO]: `Transcribe and summarize the audio.`,
   [Intent.UNKNOWN]: `You are an helpful assistant that can answer any question.`,
 };
 
