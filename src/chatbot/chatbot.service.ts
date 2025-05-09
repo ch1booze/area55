@@ -1,6 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ChatsService } from 'src/chats/chats.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ChatbotService {
@@ -10,6 +12,8 @@ export class ChatbotService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly chatsService: ChatsService,
+    private readonly usersService: UsersService,
   ) {
     this.apiUrl = this.configService.get<string>('GRAPH_API_URL')!;
     this.apiToken = this.configService.get<string>('GRAPH_API_TOKEN')!;
@@ -21,6 +25,8 @@ export class ChatbotService {
       throw new Error('Message not found in the payload');
     }
 
+    const name = body?.entry?.[0]?.changes?.[0]?.contacts?.[0]?.profile
+      ?.name as string;
     const phoneNumber = message.from as string;
     const messageType = message.type as string;
 
@@ -39,10 +45,23 @@ export class ChatbotService {
           payload = {
             messaging_product: 'whatsapp',
             to: phoneNumber,
-            type: 'template',
-            template: {
-              name: 'welcome_message',
-              language: { code: 'en_US' },
+            type: 'text',
+            text: {
+              body: `Hey, ${name}
+
+            👽 Welcome to Area55! Your ultimate assistant is here!
+
+            I’m thrilled to help you with a variety of tasks. Here’s what I can do:
+
+            🎤 *Transcribe audio files*: Send me any audio, and I’ll convert it to text for you.
+
+            🗓️ *Set reminders*: Just say or send, "Remind me to [task] at [time]."
+
+            📍 *Find the best recommendations*: Need suggestions for products, places, or services? I’ve got you covered!
+
+            📑 *Summarise news articles*: Share a link, and I’ll give you a quick summary.
+
+            And that’s just the beginning! Feel free to ask me anything. Let’s make things happen! 🚀`,
             },
           };
         } else {
