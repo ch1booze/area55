@@ -21,34 +21,85 @@ export class ChatbotService {
       throw new Error('Message not found in the payload');
     }
 
-    const phoneNumber = message!.from as string;
-    const messageType = message!.type as string;
+    const phoneNumber = message.from as string;
+    const messageType = message.type as string;
 
-    if (messageType === 'text') {
-      const messageBody = message!.text!.body as string;
-      if (messageBody === 'Hey, Area55') {
-        const payload = {
-          messaging_product: 'whatsapp',
-          to: phoneNumber,
-          type: 'template',
-          template: { name: 'welcome_message', language: { code: 'en_US' } },
-        };
+    let payload: any;
 
-        return await this.sendMessage(payload);
-      } else {
-        const payload = {
+    try {
+      if (messageType === 'text') {
+        const messageBody = message.text?.body as string;
+        if (!messageBody) {
+          throw new Error('Message body not found');
+        }
+
+        if (
+          messageBody.toLowerCase().replace(',', '').trim() === 'hey area55'
+        ) {
+          payload = {
+            messaging_product: 'whatsapp',
+            to: phoneNumber,
+            type: 'template',
+            template: {
+              name: 'hello_world',
+              language: { code: 'en_US' },
+            },
+          };
+        } else {
+          payload = {
+            messaging_product: 'whatsapp',
+            to: phoneNumber,
+            type: 'text',
+            text: { body: messageBody },
+          };
+        }
+      } else if (messageType === 'image') {
+        payload = {
           messaging_product: 'whatsapp',
           to: phoneNumber,
           type: 'text',
-          text: { body: messageBody },
+          text: { body: 'An image was sent. How can I help with it?' },
         };
-
-        return await this.sendMessage(payload);
+      } else if (messageType === 'audio') {
+        payload = {
+          messaging_product: 'whatsapp',
+          to: phoneNumber,
+          type: 'text',
+          text: {
+            body: 'An audio was sent. Would you like me to transcribe it?',
+          },
+        };
+      } else {
+        payload = {
+          messaging_product: 'whatsapp',
+          to: phoneNumber,
+          type: 'text',
+          text: {
+            body: `I received a ${messageType} message. How can I assist you with this?`,
+          },
+        };
       }
+
+      if (!payload) {
+        throw new Error('Payload not defined');
+      }
+
+      return await this.sendMessage(payload);
+    } catch (error) {
+      console.error('Error handling incoming message:', error);
+      const errorPayload = {
+        messaging_product: 'whatsapp',
+        to: phoneNumber,
+        type: 'text',
+        text: {
+          body: 'Sorry, I encountered an error processing your message. Please try again later.',
+        },
+      };
+      return await this.sendMessage(errorPayload);
     }
   }
 
-  private async sendMessage(payload: object) {
+  private async sendMessage(payload: any) {
     return await this.httpService.axiosRef.post(this.apiUrl, payload, {
       headers: {
         Authorization: `Bearer ${this.apiToken}`,
