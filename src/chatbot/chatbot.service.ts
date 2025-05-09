@@ -41,7 +41,7 @@ export class ChatbotService {
             to: phoneNumber,
             type: 'template',
             template: {
-              name: 'hello_world',
+              name: 'welcome_message',
               language: { code: 'en_US' },
             },
           };
