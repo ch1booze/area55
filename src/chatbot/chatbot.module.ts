@@ -9,5 +9,6 @@ import { UsersModule } from 'src/users/users.module';
   imports: [HttpModule, ChatsModule, UsersModule],
   controllers: [ChatbotController],
   providers: [ChatbotService],
+  exports: [ChatbotService],
 })
 export class ChatbotModule {}
