@@ -21,9 +21,6 @@ export class ChatbotService {
 
   async handleIncomingMessage(body: any) {
     const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-    if (!message) {
-      throw new Error('Message not found in the payload');
-    }
 
     const name = body?.entry?.[0]?.changes?.[0]?.value?.contacts?.[0]?.profile
       ?.name as string;
@@ -73,11 +70,18 @@ export class ChatbotService {
           };
         }
       } else if (messageType === 'image') {
+        const mediaId = message.image.id as string;
+        const mimetype = message.image.mime_type as string;
+        const imageUrl = await this.getMediaUrl(mediaId);
+        const size = await this.downloadImage(imageUrl, mimetype);
+
         payload = {
           messaging_product: 'whatsapp',
           to: phoneNumber,
           type: 'text',
-          text: { body: 'An image was sent. How can I help with it?' },
+          text: {
+            body: `An image was sent has ${size} bytes. How can I help with it?`,
+          },
         };
       } else if (messageType === 'audio') {
         payload = {
@@ -115,6 +119,32 @@ export class ChatbotService {
         },
       };
       return await this.sendMessage(errorPayload);
+    }
+  }
+
+  private async getMediaUrl(mediaId: string): Promise<string> {
+    try {
+      const response = await this.httpService.axiosRef.get(
+        `${this.apiUrl}/${mediaId}`,
+        { headers: { Authorization: `Bearer ${this.apiToken}` } },
+      );
+      return response.data.url;
+    } catch (error) {
+      console.error('Error getting media URL:', error);
+      throw new Error('Failed to get media URL');
+    }
+  }
+
+  private async downloadImage(imageUrl: string, mimetype: string) {
+    try {
+      const response = await this.httpService.axiosRef.get(imageUrl, {
+        headers: { Authorization: `Bearer ${this.apiToken}` },
+        responseType: 'arraybuffer',
+      });
+      return response.data.byteLength;
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      throw new Error('Failed to download image');
     }
   }
 

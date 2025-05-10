@@ -1,0 +1,39 @@
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "966845478660032",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "15556416124",
+              "phone_number_id": "618751221325531"
+            },
+            "contacts": [
+              {
+                "profile": { "name": "Victor Momodu" },
+                "wa_id": "2348164998936"
+              }
+            ],
+            "messages": [
+              {
+                "from": "2348164998936",
+                "id": "wamid.HBgNMjM0ODE2NDk5ODkzNhUCABIYIDc1ODEwNUMzREJCNDgxRUEyREEzMEM2NTNCNDgyMzg3AA==",
+                "timestamp": "1746870646",
+                "type": "image",
+                "image": {
+                  "mime_type": "image/jpeg",
+                  "sha256": "06jHo1PuGTtHnJz+ANPu2LwKlUEKv132Y8nG8sLQCcA=",
+                  "id": "727926786254195"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
