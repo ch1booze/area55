@@ -74,8 +74,8 @@ export class ChatbotService {
       } else if (messageType === 'image') {
         const mediaId = message.image.id as string;
         const mimetype = message.image.mime_type as string;
-        const imageUrl = await this.getMediaUrl(mediaId);
-        const size = await this.downloadImage(imageUrl, mimetype);
+        const mediaUrl = await this.getMediaUrl(mediaId);
+        const size = await this.downloadMedia(mediaUrl, mimetype);
 
         payload = {
           messaging_product: 'whatsapp',
@@ -86,12 +86,17 @@ export class ChatbotService {
           },
         };
       } else if (messageType === 'audio') {
+        const mediaId = message.audio.id as string;
+        const mimetype = message.audio.mime_type as string;
+        const mediaUrl = await this.getMediaUrl(mediaId);
+        const size = await this.downloadMedia(mediaUrl, mimetype);
+
         payload = {
           messaging_product: 'whatsapp',
           to: phoneNumber,
           type: 'text',
           text: {
-            body: 'An audio was sent. Would you like me to transcribe it?',
+            body: `An audio was sent with ${size} bytes. Would you like me to transcribe it?`,
           },
         };
       } else {
@@ -137,9 +142,9 @@ export class ChatbotService {
     }
   }
 
-  private async downloadImage(imageUrl: string, mimetype: string) {
+  private async downloadMedia(mediaUrl: string, mimetype: string) {
     try {
-      const response = await this.httpService.axiosRef.get(imageUrl, {
+      const response = await this.httpService.axiosRef.get(mediaUrl, {
         headers: { Authorization: `Bearer ${this.apiToken}` },
         responseType: 'arraybuffer',
       });
