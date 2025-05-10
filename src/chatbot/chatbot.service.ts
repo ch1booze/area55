@@ -6,6 +6,7 @@ import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ChatbotService {
+  private readonly apiBaseUrl: string;
   private readonly apiUrl: string;
   private readonly apiToken: string;
 
@@ -15,6 +16,7 @@ export class ChatbotService {
     private readonly chatsService: ChatsService,
     private readonly usersService: UsersService,
   ) {
+    this.apiBaseUrl = this.configService.get<string>('GRAPH_API_BASE_URL')!;
     this.apiUrl = this.configService.get<string>('GRAPH_API_URL')!;
     this.apiToken = this.configService.get<string>('GRAPH_API_TOKEN')!;
   }
@@ -125,7 +127,7 @@ export class ChatbotService {
   private async getMediaUrl(mediaId: string): Promise<string> {
     try {
       const response = await this.httpService.axiosRef.get(
-        `${this.apiUrl}/${mediaId}`,
+        `${this.apiBaseUrl}/${mediaId}`,
         { headers: { Authorization: `Bearer ${this.apiToken}` } },
       );
       return response.data.url;
