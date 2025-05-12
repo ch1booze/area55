@@ -3,7 +3,7 @@ import { UploadFileDto } from './files.interfaces';
 
 @Injectable()
 export class FilePipe implements PipeTransform {
-  transform(file?: Express.Multer.File, metadata: ArgumentMetadata) {
+  transform(file: Express.Multer.File, metadata: ArgumentMetadata) {
     if (!file) return null;
 
     return {
