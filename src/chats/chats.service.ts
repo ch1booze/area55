@@ -187,6 +187,16 @@ export class ChatsService {
       });
 
       return `I have set a reminder at ${time}`;
+    } else if (intent === Intent.UNKNOWN) {
+      const response = await this.llamaindexGroq.chat({
+        messages: [
+          { role: 'system', content: IntentPrompts[intent] },
+          { role: 'user', content: query },
+        ],
+        responseFormat: { type: 'json_object' },
+      });
+
+      return JSON.stringify(response.message.content);
     }
   }
 
@@ -222,7 +232,7 @@ export class ChatsService {
     const chatEntity = new ChatEntity();
     chatEntity.query = query;
     chatEntity.intent = intent;
-    chatEntity.reply = JSON.stringify(reply);
+    chatEntity.reply = reply!;
     chatEntity.fileId = fileEntity ? fileEntity.id : undefined;
 
     await this.chatRepository.save(chatEntity);
