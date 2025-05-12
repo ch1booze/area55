@@ -29,12 +29,17 @@ export const IntentPrompts: { [key in Intent]: string } = {
   You would be given a user query.
   You are to extract the following information in JSON in this format:
   {
-    recipient: string,
-    message: string,
-    time: string,
+    recipientName: string;
+    recipientPhoneNumber: string;
+    message: string;
+    time: string;
   }
+
   The recipient is the person or entity that the message is intended for.
-  The message is the content of the message.
+  The recipient is to have a name.
+  The recipient's phone number should be valid WhatsApp number starting with '+' and then the country code.
+  The message should be extracted from the user query.
+  The message can a task to be completed, information to be shared, or a reminder.
   The time is the time at which the message should be sent. It should be in the ISO string format.
   The current time is ${new Date().toISOString()}.
 
@@ -96,3 +101,15 @@ export const AudioTypes = [
   'audio/x-m4a', // non-standard but used for iTunes m4a
   'audio/m4a', // often used interchangeably with above
 ];
+
+export class ScheduleMessageResponse {
+  recipientName: string;
+  recipientPhoneNumber: string;
+  message: string;
+  time: string;
+}
+
+export class SetReminderResponse {
+  task: string;
+  time: string;
+}

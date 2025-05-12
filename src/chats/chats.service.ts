@@ -9,6 +9,8 @@ import {
   ImageTypes,
   Intent,
   IntentPrompts,
+  ScheduleMessageResponse,
+  SetReminderResponse,
 } from './chats.interfaces';
 import { Groq } from 'groq-sdk';
 import { FilesService } from 'src/files/files.service';
@@ -20,6 +22,7 @@ import * as path from 'path';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UploadFileDto } from 'src/files/files.interfaces';
 import mime from 'mime';
+import { CronService } from 'src/cron/cron.service';
 
 @Injectable()
 export class ChatsService {
@@ -31,6 +34,7 @@ export class ChatsService {
     private chatRepository: Repository<ChatEntity>,
     private readonly configService: ConfigService,
     private readonly filesService: FilesService,
+    private readonly cronService: CronService,
   ) {
     this.groq = new Groq({
       apiKey: this.configService.get<string>('GROQ_API_KEY'),
@@ -87,8 +91,6 @@ export class ChatsService {
         const tmpFile = path.join(tmpDir, file!.name);
         await fs.promises.writeFile(tmpFile, file!.buffer);
 
-        console.log('MIME TYPE:', mime.getType(tmpFile));
-
         const response = await this.groq.audio.transcriptions.create({
           file: fs.createReadStream(tmpFile),
           model: 'whisper-large-v3-turbo',
@@ -126,17 +128,63 @@ export class ChatsService {
       });
 
       return response.choices[0].message.content;
+    } else if (intent === Intent.SCHEDULE_MESSAGE) {
+      const response = await this.llamaindexGroq.chat({
+        messages: [
+          { role: 'system', content: IntentPrompts[intent] },
+          { role: 'user', content: query },
+        ],
+        responseFormat: { type: 'json_object' },
+      });
+
+      const { recipientName, recipientPhoneNumber, message, time } = JSON.parse(
+        JSON.stringify(response.message.content),
+      ) as ScheduleMessageResponse;
+      if (!recipientName || recipientName === 'MISSING') {
+        return `You didn't include the recipient's name`;
+      } else if (!recipientPhoneNumber || recipientPhoneNumber === 'MISSING') {
+        return `You didn't include the recipient's phone number`;
+      } else if (!message || message === 'MISSING') {
+        return `No message could be extracted from your query`;
+      } else if (!time || time === 'MISSING') {
+        return `You didn't give a time to send the message.`;
+      }
+
+      const datetime = new Date(time);
+      await this.cronService.createCron({
+        message,
+        toPhoneNumber: recipientPhoneNumber,
+        time: datetime,
+      });
+
+      return `I have scheduled a message for ${recipientPhoneNumber} at ${time}`;
+    } else if (intent === Intent.SET_REMINDER) {
+      const response = await this.llamaindexGroq.chat({
+        messages: [
+          { role: 'system', content: IntentPrompts[intent] },
+          { role: 'user', content: query },
+        ],
+        responseFormat: { type: 'json_object' },
+      });
+
+      const { task, time } = JSON.parse(
+        JSON.stringify(response.message.content),
+      ) as SetReminderResponse;
+      if (!task || task === 'MISSING') {
+        return `No message could be extracted from your query`;
+      } else if (!time || time === 'MISSING') {
+        return `You didn't give a time to send the message.`;
+      }
+
+      const datetime = new Date(time);
+      await this.cronService.createCron({
+        message: task,
+        toPhoneNumber: '+2348164998936',
+        time: datetime,
+      });
+
+      return `I have set a reminder at ${time}`;
     }
-
-    const response = await this.llamaindexGroq.chat({
-      messages: [
-        { role: 'system', content: IntentPrompts[intent] },
-        { role: 'user', content: query },
-      ],
-      responseFormat: { type: 'json_object' },
-    });
-
-    return response.message.content;
   }
 
   async createChat(query?: string, file?: UploadFileDto) {
