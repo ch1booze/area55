@@ -113,3 +113,9 @@ export class SetReminderResponse {
   task: string;
   time: string;
 }
+
+export class CreateCronDto {
+  time: Date;
+  toPhoneNumber: string;
+  message: string;
+}

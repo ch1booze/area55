@@ -7,10 +7,8 @@ import { ChatbotModule } from './chatbot/chatbot.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './users/users.entity';
 import { FileEntity } from './files/files.entity';
-import { ChatEntity } from './chats/chats.entity';
-import { CronModule } from './cron/cron.module';
+import { ChatEntity, CronEntity } from './chats/chats.entity';
 import { ScheduleModule } from '@nestjs/schedule';
-import { CronEntity } from './cron/cron.entity';
 
 @Module({
   imports: [
@@ -29,7 +27,6 @@ import { CronEntity } from './cron/cron.entity';
       }),
       inject: [ConfigService],
     }),
-    CronModule,
     ScheduleModule.forRoot(),
   ],
 })

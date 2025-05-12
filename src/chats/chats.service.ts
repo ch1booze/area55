@@ -1,11 +1,12 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Repository } from 'typeorm';
-import { ChatEntity } from './chats.entity';
+import { LessThanOrEqual, Repository } from 'typeorm';
+import { ChatEntity, CronEntity } from './chats.entity';
 import {
   AudioTypes,
   ClassifyIntentPrompt,
   ClassifyIntentResponse,
+  CreateCronDto,
   ImageTypes,
   Intent,
   IntentPrompts,
@@ -21,8 +22,8 @@ import * as tmp from 'tmp';
 import * as path from 'path';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UploadFileDto } from 'src/files/files.interfaces';
-import mime from 'mime';
-import { CronService } from 'src/cron/cron.service';
+import { Cron } from '@nestjs/schedule';
+import { ChatbotService } from 'src/chatbot/chatbot.service';
 
 @Injectable()
 export class ChatsService {
@@ -32,9 +33,11 @@ export class ChatsService {
   constructor(
     @InjectRepository(ChatEntity)
     private chatRepository: Repository<ChatEntity>,
+    @InjectRepository(CronEntity)
+    private readonly cronRepository: Repository<CronEntity>,
     private readonly configService: ConfigService,
     private readonly filesService: FilesService,
-    private readonly cronService: CronService,
+    private readonly chatbotService: ChatbotService,
   ) {
     this.groq = new Groq({
       apiKey: this.configService.get<string>('GROQ_API_KEY'),
@@ -151,7 +154,7 @@ export class ChatsService {
       }
 
       const datetime = new Date(time);
-      await this.cronService.createCron({
+      await this.createCron({
         message,
         toPhoneNumber: recipientPhoneNumber,
         time: datetime,
@@ -177,7 +180,7 @@ export class ChatsService {
       }
 
       const datetime = new Date(time);
-      await this.cronService.createCron({
+      await this.createCron({
         message: task,
         toPhoneNumber: '+2348164998936',
         time: datetime,
@@ -228,5 +231,41 @@ export class ChatsService {
 
   async getChats() {
     return this.chatRepository.find();
+  }
+
+  async createCron(dto: CreateCronDto) {
+    const cronEntity = new CronEntity();
+    cronEntity.time = dto.time;
+    cronEntity.message = dto.message;
+    cronEntity.toPhoneNumber = dto.toPhoneNumber;
+
+    await this.cronRepository.save(cronEntity);
+  }
+
+  @Cron('0 * * * * *')
+  async processCron() {
+    try {
+      const now = new Date();
+      const cronEntities = await this.cronRepository.find({
+        where: {
+          time: LessThanOrEqual(now),
+          completed: false,
+        },
+      });
+
+      for (const cronEntity of cronEntities) {
+        await this.chatbotService.sendMessage({
+          messaging_product: 'whatsapp',
+          to: cronEntity.toPhoneNumber,
+          type: 'text',
+          text: { body: cronEntity.message },
+        });
+
+        cronEntity.completed = true;
+        await this.cronRepository.save(cronEntity);
+      }
+    } catch (error) {
+      console.error('Error processing cron jobs:', error);
+    }
   }
 }

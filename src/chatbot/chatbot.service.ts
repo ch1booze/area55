@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatsService } from 'src/chats/chats.service';
 import { UsersService } from 'src/users/users.service';
@@ -11,9 +11,10 @@ export class ChatbotService {
   private readonly apiToken: string;
 
   constructor(
+    @Inject(forwardRef(() => ChatsService))
+    private chatsService: ChatsService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-    private readonly chatsService: ChatsService,
     private readonly usersService: UsersService,
   ) {
     this.apiBaseUrl = this.configService.get<string>('GRAPH_API_BASE_URL')!;
