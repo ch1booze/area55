@@ -75,28 +75,40 @@ export class ChatbotService {
         const mediaId = message.image.id as string;
         const mimetype = message.image.mime_type as string;
         const mediaUrl = await this.getMediaUrl(mediaId);
-        const size = await this.downloadMedia(mediaUrl, mimetype);
+        const buffer = (await this.downloadMedia(mediaUrl, mimetype)) as Buffer;
+        const chatEntity = await this.chatsService.createChat(undefined, {
+          buffer,
+          mimetype,
+          name: mediaId,
+          size: buffer.byteLength,
+        });
 
         payload = {
           messaging_product: 'whatsapp',
           to: phoneNumber,
           type: 'text',
           text: {
-            body: `An image was sent has ${size} bytes. How can I help with it?`,
+            body: chatEntity.reply,
           },
         };
       } else if (messageType === 'audio') {
         const mediaId = message.audio.id as string;
         const mimetype = message.audio.mime_type as string;
         const mediaUrl = await this.getMediaUrl(mediaId);
-        const size = await this.downloadMedia(mediaUrl, mimetype);
+        const buffer = (await this.downloadMedia(mediaUrl, mimetype)) as Buffer;
+        const chatEntity = await this.chatsService.createChat(undefined, {
+          buffer,
+          mimetype,
+          name: mediaId,
+          size: buffer.byteLength,
+        });
 
         payload = {
           messaging_product: 'whatsapp',
           to: phoneNumber,
           type: 'text',
           text: {
-            body: `An audio was sent with ${size} bytes. Would you like me to transcribe it?`,
+            body: chatEntity.reply,
           },
         };
       } else {
@@ -148,7 +160,7 @@ export class ChatbotService {
         headers: { Authorization: `Bearer ${this.apiToken}` },
         responseType: 'arraybuffer',
       });
-      return response.data.byteLength;
+      return response.data;
     } catch (error) {
       console.error('Error downloading image:', error);
       throw new Error('Failed to download image');

@@ -17,6 +17,8 @@ import {
   ApiExcludeEndpoint,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UploadFileDto } from 'src/files/files.interfaces';
+import { FilePipe } from 'src/files/files.pipes';
 
 @ApiTags('chats')
 @Controller('chats')
@@ -64,7 +66,7 @@ export class ChatsController {
   @UseInterceptors(FileInterceptor('file'))
   async createChat(
     @Query('query') query: string = '',
-    @UploadedFile() file?: Express.Multer.File,
+    @UploadedFile(new FilePipe()) file?: UploadFileDto,
   ) {
     return await this.chatsService.createChat(query, file);
   }

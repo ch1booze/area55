@@ -18,6 +18,7 @@ import * as fs from 'fs';
 import * as tmp from 'tmp';
 import * as path from 'path';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UploadFileDto } from 'src/files/files.interfaces';
 
 @Injectable()
 export class ChatsService {
@@ -59,7 +60,7 @@ export class ChatsService {
   private async generateResponse(
     intent: Intent,
     query: string,
-    file?: Express.Multer.File,
+    file?: UploadFileDto,
   ) {
     if (intent === Intent.TRANSCRIBE_AUDIO) {
       const createTempDir = (): Promise<{
@@ -82,7 +83,7 @@ export class ChatsService {
         const { path: tmpDir, cleanupCallback: cb } = await createTempDir();
         cleanupCallback = cb;
 
-        const tmpFile = path.join(tmpDir, file!.originalname);
+        const tmpFile = path.join(tmpDir, file!.name);
         await fs.promises.writeFile(tmpFile, file!.buffer);
 
         const response = await this.groq.audio.transcriptions.create({
@@ -135,7 +136,7 @@ export class ChatsService {
     return response.message.content;
   }
 
-  async createChat(query?: string, file?: Express.Multer.File) {
+  async createChat(query?: string, file?: UploadFileDto) {
     let intent: Intent;
     let fileEntity: FileEntity | null = null;
 
