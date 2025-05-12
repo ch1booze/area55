@@ -64,11 +64,15 @@ export class ChatbotService {
             },
           };
         } else {
+          const chatEntity = await this.chatsService.createChat(
+            messageBody,
+            undefined,
+          );
           payload = {
             messaging_product: 'whatsapp',
             to: phoneNumber,
             type: 'text',
-            text: { body: messageBody },
+            text: { body: chatEntity.reply },
           };
         }
       } else if (messageType === 'image') {
@@ -108,7 +112,7 @@ export class ChatbotService {
           to: phoneNumber,
           type: 'text',
           text: {
-            body: chatEntity.reply,
+            body: mimetype,
           },
         };
       } else {
