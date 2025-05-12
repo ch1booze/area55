@@ -70,10 +70,29 @@ export const ImageTypes = [
 ];
 
 export const AudioTypes = [
-  'audio/wav',
-  'audio/mpeg',
-  'audio/ogg',
-  'audio/webm',
-  'audio/mp3',
-  'audio/m4a',
+  // PCM (uncompressed) audio
+  'audio/wav', // .wav
+
+  // MPEG audio
+  'audio/mpeg', // .mp3 (preferred MIME type for MP3)
+  'audio/mp3', // non-standard but often used
+  'audio/mpeg; codecs=mp3', // explicit MP3 codec
+
+  // Ogg container formats
+  'audio/ogg', // general Ogg, codec unspecified
+  'audio/ogg; codecs=vorbis', // Ogg Vorbis
+  'audio/ogg; codecs=opus', // Ogg Opus
+  'audio/ogg; codecs=flac', // Ogg FLAC
+  'audio/ogg; codecs=speex', // Ogg Speex
+
+  // WebM (uses Opus or Vorbis)
+  'audio/webm', // WebM, codec unspecified
+  'audio/webm; codecs=opus', // WebM with Opus
+  'audio/webm; codecs=vorbis', // WebM with Vorbis
+
+  // AAC / MPEG-4 audio
+  'audio/mp4', // .m4a
+  'audio/mp4; codecs="mp4a.40.2"', // AAC-LC in MP4 (common for m4a)
+  'audio/x-m4a', // non-standard but used for iTunes m4a
+  'audio/m4a', // often used interchangeably with above
 ];
