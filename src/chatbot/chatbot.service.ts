@@ -100,19 +100,13 @@ export class ChatbotService {
         const mimetype = message.audio.mime_type as string;
         const mediaUrl = await this.getMediaUrl(mediaId);
         const buffer = (await this.downloadMedia(mediaUrl, mimetype)) as Buffer;
-        const chatEntity = await this.chatsService.createChat(undefined, {
-          buffer,
-          mimetype,
-          name: mediaId,
-          size: buffer.byteLength,
-        });
 
         payload = {
           messaging_product: 'whatsapp',
           to: phoneNumber,
           type: 'text',
           text: {
-            body: mimetype,
+            body: `The audio has a mimetype ${mimetype} and a size of ${buffer.byteLength}`,
           },
         };
       } else {
