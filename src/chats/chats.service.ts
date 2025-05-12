@@ -84,9 +84,7 @@ export class ChatsService {
         cleanupCallback = cb;
 
         const tmpFile = path.join(tmpDir, file!.name);
-        await fs.promises.writeFile(tmpFile, file!.buffer, {
-          encoding: 'binary',
-        });
+        await fs.promises.writeFile(tmpFile, file!.buffer);
 
         const response = await this.groq.audio.transcriptions.create({
           file: fs.createReadStream(tmpFile),

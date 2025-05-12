@@ -83,7 +83,7 @@ export class ChatbotService {
         const chatEntity = await this.chatsService.createChat(undefined, {
           buffer,
           mimetype,
-          name: mediaId,
+          name: `${mediaId}.ogg`,
           size: buffer.byteLength,
         });
 
