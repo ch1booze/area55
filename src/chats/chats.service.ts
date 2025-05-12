@@ -19,6 +19,7 @@ import * as tmp from 'tmp';
 import * as path from 'path';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UploadFileDto } from 'src/files/files.interfaces';
+import mime from 'mime';
 
 @Injectable()
 export class ChatsService {
@@ -85,6 +86,8 @@ export class ChatsService {
 
         const tmpFile = path.join(tmpDir, file!.name);
         await fs.promises.writeFile(tmpFile, file!.buffer);
+
+        console.log('MIME TYPE:', mime.getType(tmpFile));
 
         const response = await this.groq.audio.transcriptions.create({
           file: fs.createReadStream(tmpFile),

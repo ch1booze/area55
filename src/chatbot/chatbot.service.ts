@@ -23,7 +23,6 @@ export class ChatbotService {
 
   async handleIncomingMessage(body: any) {
     const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-
     const name = body?.entry?.[0]?.changes?.[0]?.value?.contacts?.[0]?.profile
       ?.name as string;
     const phoneNumber = message.from as string;
