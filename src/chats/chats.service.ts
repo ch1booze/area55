@@ -45,7 +45,7 @@ export class ChatsService {
 
     this.llamaindexGroq = new LlamaIndexGroq({
       apiKey: this.configService.get<string>('GROQ_API_KEY'),
-      model: 'Compound-Beta-Mini',
+      model: this.configService.get<string>('GROQ_LLAMAINDEX_MODEL')!,
     });
   }
 
@@ -96,7 +96,7 @@ export class ChatsService {
 
         const response = await this.groq.audio.transcriptions.create({
           file: fs.createReadStream(tmpFile),
-          model: 'whisper-large-v3-turbo',
+          model: this.configService.get<string>('GROQ_AUDIO_MODEL')!,
         });
 
         return response.text;
@@ -127,7 +127,7 @@ export class ChatsService {
             ],
           },
         ],
-        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        model: this.configService.get<string>('GROQ_IMAGE_MODEL')!,
       });
 
       return response.choices[0].message.content;
