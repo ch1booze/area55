@@ -45,7 +45,7 @@ export class ChatsService {
 
     this.llamaindexGroq = new LlamaIndexGroq({
       apiKey: this.configService.get<string>('GROQ_API_KEY'),
-      model: 'llama3-8b-8192',
+      model: 'Compound-Beta-Mini',
     });
   }
 
