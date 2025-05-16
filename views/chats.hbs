@@ -75,8 +75,6 @@
     <main
       class='flex-1 ml-0 md:ml-64 flex flex-col overflow-y-auto p-6 relative'
     >
-      <h2 class='text-2xl font-bold mb-4'>Chat</h2>
-
       <div class='chat-wrapper space-y-6 mb-28'>
         {{#if chats.length}}
           <div class='space-y-6'>
@@ -98,12 +96,14 @@
           </div>
         {{else}}
           <div
-            class='flex items-center justify-center h-full text-gray-500 text-center p-10'
+            class='flex items-center justify-center flex-1 text-gray-500 text-center p-10'
           >
             <div>
               <p class='text-lg font-semibold'>Welcome to Area55 👋</p>
-              <p class='text-sm mt-2'>Start a conversation by typing a message
-                or uploading an image/audio file.</p>
+              <p class='text-sm mt-2'>
+                Start a conversation by typing a message or uploading an
+                image/audio file.
+              </p>
             </div>
           </div>
         {{/if}}
