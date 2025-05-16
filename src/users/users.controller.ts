@@ -20,7 +20,7 @@ import { AuthGuard } from './auth.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('signin`')
+  @Post('signin')
   @Redirect()
   async signin(@Body('phoneNumber') phoneNumber: string) {
     await this.usersService.signin(phoneNumber);
