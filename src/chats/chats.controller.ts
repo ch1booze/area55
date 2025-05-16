@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Redirect,
   Render,
   Req,
   UploadedFile,
@@ -22,6 +23,7 @@ export class ChatsController {
   constructor(private readonly chatsService: ChatsService) {}
 
   @Post()
+  @Redirect()
   @UseInterceptors(FileInterceptor('file'))
   async createChat(
     @Req() req: Request,
@@ -29,7 +31,8 @@ export class ChatsController {
     @UploadedFile(new FilePipe()) file?: UploadFileDto,
   ) {
     const userId = req.session.userId!;
-    return await this.chatsService.createChat(userId, false, query, file);
+    await this.chatsService.createChat(userId, false, query, file);
+    return { url: '/chats' };
   }
 
   @Get()
