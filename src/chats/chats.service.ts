@@ -280,7 +280,7 @@ export class ChatsService {
       for (const cronEntity of cronEntities) {
         await this.chatbotService.sendMessage({
           messaging_product: 'whatsapp',
-          to: cronEntity.toPhoneNumber,
+          to: cronEntity.toPhoneNumber.replace('+', ''),
           type: 'text',
           text: { body: cronEntity.message },
         });

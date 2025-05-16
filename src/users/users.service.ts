@@ -36,7 +36,7 @@ export class UsersService {
     const token = totp.generate(this.configService.get<string>('OTP_SECRET')!);
     await this.chatbotService.sendMessage({
       messaging_product: 'whatsapp',
-      to: phoneNumber,
+      to: phoneNumber.replace('+', ''),
       type: 'text',
       text: { body: `Your OTP is ${token}` },
     });
