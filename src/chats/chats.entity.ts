@@ -55,4 +55,11 @@ export class CronEntity {
 
   @Column({ default: false })
   completed: boolean;
+
+  // @ManyToOne(() => UserEntity, (user) => user.crons)
+  // @JoinColumn({ name: 'userId' })
+  // user: UserEntity;
+
+  // @Column()
+  // userId: string;
 }

@@ -17,4 +17,7 @@ export class UserEntity {
 
   @OneToMany(() => ChatEntity, (chat) => chat.user)
   chats: ChatEntity[];
+
+  // @OneToMany(() => CronEntity, (cron) => cron.user)
+  // crons: CronEntity[];
 }

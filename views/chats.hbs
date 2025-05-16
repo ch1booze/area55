@@ -1,0 +1,92 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Chats</title>
+    <script src='https://cdn.tailwindcss.com'></script>
+  </head>
+  <body class='flex h-screen bg-gray-100 text-gray-900'>
+    <!-- Sidebar -->
+    <aside
+      class='w-64 bg-white shadow-md flex flex-col justify-between fixed md:static z-10 h-full md:h-auto transition-transform duration-300 md:translate-x-0 transform -translate-x-full md:transform-none'
+      id='sidebar'
+    >
+      <div>
+        <div class='p-6 font-bold text-xl border-b'>AI Chat</div>
+        <nav class='flex flex-col p-4 space-y-2'>
+          <a href='#' class='hover:bg-gray-200 px-3 py-2 rounded-md'>Chats</a>
+          <a href='#' class='hover:bg-gray-200 px-3 py-2 rounded-md'>Scheduled
+            Messages</a>
+          <a
+            href='#'
+            class='hover:bg-gray-200 px-3 py-2 rounded-md'
+          >Reminders</a>
+        </nav>
+      </div>
+
+      <div class='p-4 border-t flex flex-col items-center space-y-3'>
+        <img
+          src='https://i.pravatar.cc/100'
+          alt='Profile'
+          class='w-10 h-10 rounded-full'
+        />
+        <button
+          class='w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600'
+        >
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button
+      class='absolute top-4 left-4 md:hidden z-20'
+      onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full')"
+    >
+      <svg
+        class='w-6 h-6 text-gray-700'
+        fill='none'
+        stroke='currentColor'
+        viewBox='0 0 24 24'
+        xmlns='http://www.w3.org/2000/svg'
+      >
+        <path
+          stroke-linecap='round'
+          stroke-linejoin='round'
+          stroke-width='2'
+          d='M4 6h16M4 12h16M4 18h16'
+        ></path>
+      </svg>
+    </button>
+
+    <!-- Chat Area -->
+    <main class='flex-1 ml-0 md:ml-64 overflow-y-auto p-6'>
+      <h2 class='text-2xl font-bold mb-4'>Chat</h2>
+      <div class='chat-wrapper space-y-6'>
+        {{#each chats}}
+          <div class='chat bg-white p-4 rounded-lg shadow'>
+            <div class='chat-time text-xs text-gray-500 mb-2'>{{time}}</div>
+            <div class='conversation space-y-2'>
+              <div class='message user'>
+                <strong>User:</strong>
+                {{query}}
+              </div>
+              <div class='message ai text-gray-700'>
+                <strong>AI:</strong>
+                {{reply}}
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    </main>
+
+    <!-- Optional: Add this for better mobile UX -->
+    <script>
+      const sidebar = document.getElementById('sidebar');
+      document.addEventListener('click', function (e) { if
+      (!sidebar.contains(e.target) && !e.target.closest('button')) {
+      sidebar.classList.add('-translate-x-full'); } });
+    </script>
+  </body>
+</html>

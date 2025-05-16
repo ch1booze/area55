@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Query,
+  Render,
   Req,
   UploadedFile,
   UseGuards,
@@ -32,8 +33,16 @@ export class ChatsController {
   }
 
   @Get()
-  async getChats(@Req() req: Request) {
+  @Render('chats')
+  async getChatPage(@Req() req: Request) {
     const userId = req.session.userId!;
-    return await this.chatsService.getChats(userId);
+    const gottenChats = await this.chatsService.getChats(userId);
+    return {
+      chats: gottenChats.map((c) => ({
+        query: c.query,
+        reply: c.reply,
+        time: c.createdAt,
+      })),
+    };
   }
 }
