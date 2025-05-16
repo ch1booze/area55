@@ -1,4 +1,4 @@
-export class SigninUserByPhoneDto {
+export interface VerifyOtpDto {
   phoneNumber: string;
-  name: string;
+  token: string;
 }

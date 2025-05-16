@@ -1,5 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Intent } from './chats.interfaces';
+import { UserEntity } from 'src/users/users.entity';
 
 @Entity()
 export class ChatEntity {
@@ -9,6 +16,9 @@ export class ChatEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
+  @Column({ type: 'boolean' })
+  isWhatsApp: boolean;
+
   @Column()
   query: string;
 
@@ -17,6 +27,13 @@ export class ChatEntity {
 
   @Column()
   reply: string;
+
+  @ManyToOne(() => UserEntity, (user) => user.chats)
+  @JoinColumn({ name: 'userId' })
+  user: UserEntity;
+
+  @Column()
+  userId: string;
 
   @Column({ type: 'text', nullable: true })
   fileId?: string;

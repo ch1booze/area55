@@ -24,6 +24,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UploadFileDto } from 'src/files/files.interfaces';
 import { Cron } from '@nestjs/schedule';
 import { ChatbotService } from 'src/chatbot/chatbot.service';
+import { UserEntity } from 'src/users/users.entity';
 
 @Injectable()
 export class ChatsService {
@@ -35,6 +36,8 @@ export class ChatsService {
     private chatRepository: Repository<ChatEntity>,
     @InjectRepository(CronEntity)
     private readonly cronRepository: Repository<CronEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
     private readonly configService: ConfigService,
     private readonly filesService: FilesService,
     private readonly chatbotService: ChatbotService,
@@ -200,7 +203,12 @@ export class ChatsService {
     }
   }
 
-  async createChat(query?: string, file?: UploadFileDto) {
+  async createChat(
+    userId: string,
+    isWhatsApp: boolean,
+    query?: string,
+    file?: UploadFileDto,
+  ) {
     let intent: Intent;
     let fileEntity: FileEntity | null = null;
 
@@ -234,16 +242,18 @@ export class ChatsService {
     chatEntity.intent = intent;
     chatEntity.reply = reply!;
     chatEntity.fileId = fileEntity ? fileEntity.id : undefined;
+    chatEntity.userId = userId;
+    chatEntity.isWhatsApp = isWhatsApp;
 
     await this.chatRepository.save(chatEntity);
     return chatEntity;
   }
 
-  async getChats() {
-    return this.chatRepository.find();
+  async getChats(userId: string) {
+    return this.chatRepository.find({ where: { userId } });
   }
 
-  async createCron(dto: CreateCronDto) {
+  private async createCron(dto: CreateCronDto) {
     const cronEntity = new CronEntity();
     cronEntity.time = dto.time;
     cronEntity.message = dto.message;
@@ -253,7 +263,7 @@ export class ChatsService {
   }
 
   @Cron('0 * * * * *')
-  async processCron() {
+  private async processCron() {
     try {
       const now = new Date();
       const cronEntities = await this.cronRepository.find({

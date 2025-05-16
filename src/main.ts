@@ -3,20 +3,19 @@ import { AppModule } from './app.module';
 import * as session from 'express-session';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'node:path';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const configService = app.get(ConfigService);
+
   app.use(
     session({
-      secret: 'my-secret',
+      secret: configService.get<string>('SESSION_SECRET')!,
       resave: false,
       saveUninitialized: false,
     }),
   );
-  app.useStaticAssets(join(__dirname, '..', 'public'));
-  app.useStaticAssets(join(__dirname, '..', 'views'));
-  app.setViewEngine('hbs');
 
   const config = new DocumentBuilder()
     .setTitle('Area55 API Specification')

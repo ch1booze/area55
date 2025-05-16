@@ -3,71 +3,37 @@ import {
   Get,
   Post,
   Query,
-  Render,
+  Req,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ChatsService } from './chats.service';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiQuery,
-  ApiConsumes,
-  ApiBody,
-  ApiExcludeEndpoint,
-} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadFileDto } from 'src/files/files.interfaces';
 import { FilePipe } from 'src/files/files.pipes';
+import { AuthGuard } from 'src/users/auth.guard';
+import { Request } from 'express';
 
-@ApiTags('chats')
 @Controller('chats')
+@UseGuards(AuthGuard)
 export class ChatsController {
   constructor(private readonly chatsService: ChatsService) {}
 
-  @ApiExcludeEndpoint()
-  @Get()
-  @Render('chats')
-  async getChatPage() {
-    const gottenChats = await this.chatsService.getChats();
-    return {
-      chats: gottenChats.map((c) => ({
-        query: c.query,
-        reply: c.reply,
-        time: c.createdAt,
-      })),
-    };
-  }
-
   @Post()
-  @ApiOperation({
-    summary: 'Process a message with optional file input',
-    description: 'Processes a user message, optionally with a file upload.',
-  })
-  @ApiQuery({
-    name: 'query',
-    type: String,
-    required: false,
-    description: 'The query or message to process',
-  })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-          description: 'Optional file to upload',
-        },
-      },
-    },
-  })
   @UseInterceptors(FileInterceptor('file'))
   async createChat(
+    @Req() req: Request,
     @Query('query') query: string = '',
     @UploadedFile(new FilePipe()) file?: UploadFileDto,
   ) {
-    return await this.chatsService.createChat(query, file);
+    const userId = req.session.userId!;
+    return await this.chatsService.createChat(userId, false, query, file);
+  }
+
+  @Get()
+  async getChats(@Req() req: Request) {
+    const userId = req.session.userId!;
+    return await this.chatsService.getChats(userId);
   }
 }
