@@ -12,9 +12,10 @@ export class ChatbotService {
 
   constructor(
     @Inject(forwardRef(() => ChatsService))
-    private chatsService: ChatsService,
+    private readonly chatsService: ChatsService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
   ) {
     this.apiBaseUrl = this.configService.get<string>('GRAPH_API_BASE_URL')!;
@@ -30,6 +31,8 @@ export class ChatbotService {
     const messageType = message.type as string;
 
     let payload: any;
+
+    const userEntity = await this.usersService.createOrFindUser(phoneNumber);
 
     try {
       if (messageType === 'text') {
@@ -65,6 +68,8 @@ export class ChatbotService {
           };
         } else {
           const chatEntity = await this.chatsService.createChat(
+            userEntity.id,
+            true,
             messageBody,
             undefined,
           );
@@ -80,12 +85,17 @@ export class ChatbotService {
         const mimetype = message.image.mime_type as string;
         const mediaUrl = await this.getMediaUrl(mediaId);
         const buffer = (await this.downloadMedia(mediaUrl, mimetype)) as Buffer;
-        const chatEntity = await this.chatsService.createChat(undefined, {
-          buffer,
-          mimetype,
-          name: `${mediaId}.ogg`,
-          size: buffer.byteLength,
-        });
+        const chatEntity = await this.chatsService.createChat(
+          userEntity.id,
+          true,
+          undefined,
+          {
+            buffer,
+            mimetype,
+            name: `${mediaId}.ogg`,
+            size: buffer.byteLength,
+          },
+        );
 
         payload = {
           messaging_product: 'whatsapp',
@@ -100,12 +110,17 @@ export class ChatbotService {
         const mimetype = message.audio.mime_type as string;
         const mediaUrl = await this.getMediaUrl(mediaId);
         const buffer = (await this.downloadMedia(mediaUrl, mimetype)) as Buffer;
-        const chatEntity = await this.chatsService.createChat(undefined, {
-          buffer,
-          mimetype,
-          name: mediaId,
-          size: buffer.byteLength,
-        });
+        const chatEntity = await this.chatsService.createChat(
+          userEntity.id,
+          true,
+          undefined,
+          {
+            buffer,
+            mimetype,
+            name: mediaId,
+            size: buffer.byteLength,
+          },
+        );
 
         payload = {
           messaging_product: 'whatsapp',

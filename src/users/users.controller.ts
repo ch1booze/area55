@@ -5,6 +5,9 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
+  Redirect,
+  Render,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -18,15 +21,27 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('signin`')
-  @HttpCode(HttpStatus.OK)
+  @Redirect()
   async signin(@Body('phoneNumber') phoneNumber: string) {
-    return await this.usersService.signin(phoneNumber);
+    await this.usersService.signin(phoneNumber);
+    return { url: `/verify/?phoneNumber=${phoneNumber}` };
+  }
+
+  @Get('signin')
+  @Render('signin')
+  renderSignin() {}
+
+  @Get('verify')
+  @Render('verify')
+  renderVerify(@Query('phoneNumber') phoneNumber: string) {
+    return { phoneNumber };
   }
 
   @Post('verify')
-  @HttpCode(HttpStatus.OK)
+  @Redirect()
   async verify(@Body() dto: VerifyOtpDto, @Req() req: Request) {
-    return await this.usersService.verify(dto, req);
+    await this.usersService.verify(dto, req);
+    return { url: '/chats' };
   }
 
   @Post('logout')

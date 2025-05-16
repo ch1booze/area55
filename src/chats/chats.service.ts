@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LessThanOrEqual, Repository } from 'typeorm';
 import { ChatEntity, CronEntity } from './chats.entity';
@@ -36,10 +41,9 @@ export class ChatsService {
     private chatRepository: Repository<ChatEntity>,
     @InjectRepository(CronEntity)
     private readonly cronRepository: Repository<CronEntity>,
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
     private readonly configService: ConfigService,
     private readonly filesService: FilesService,
+    @Inject(forwardRef(() => ChatbotService))
     private readonly chatbotService: ChatbotService,
   ) {
     this.groq = new Groq({

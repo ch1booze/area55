@@ -17,7 +17,22 @@ export class UsersService {
     private readonly configService: ConfigService,
   ) {}
 
+  async createOrFindUser(phoneNumber: string) {
+    const existingUser = await this.userRepository.findOne({
+      where: { phoneNumber },
+    });
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    const userEntity = new UserEntity();
+    userEntity.phoneNumber = phoneNumber;
+    return await this.userRepository.save(userEntity);
+  }
+
   async signin(phoneNumber: string) {
+    totp.options = { window: 30 };
     const token = totp.generate(this.configService.get<string>('OTP_SECRET')!);
     await this.chatbotService.sendMessage({
       messaging_product: 'whatsapp',
@@ -26,45 +41,22 @@ export class UsersService {
       text: { body: `Your OTP is ${token}` },
     });
 
-    const foundUserEntity = await this.userRepository.findOne({
-      where: { phoneNumber },
-    });
-
-    if (!foundUserEntity) {
-      const userEntity = new UserEntity();
-      userEntity.phoneNumber = phoneNumber;
-
-      await this.userRepository.save(userEntity);
-    }
+    await this.createOrFindUser(phoneNumber);
   }
 
   async verify(dto: VerifyOtpDto, req: Request) {
-    const isValid = totp.check(
-      dto.token,
-      this.configService.get<string>('OTP_SECRET')!,
-    );
+    const isValid = totp.verify({
+      token: dto.token,
+      secret: this.configService.get<string>('OTP_SECRET')!,
+    });
 
     if (!isValid) {
       throw new UnauthorizedException('Invalid OTP');
     }
 
-    const user = await this.userRepository.findOne({
-      where: { phoneNumber: dto.phoneNumber },
-    });
-
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
-
+    const user = await this.createOrFindUser(dto.phoneNumber);
     req.session.userId = user.id;
     req.session.isAuthenticated = true;
-
-    return {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phoneNumber: user.phoneNumber,
-    };
   }
 
   async getProfile(req: Request) {

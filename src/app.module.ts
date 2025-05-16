@@ -9,6 +9,7 @@ import { UserEntity } from './users/users.entity';
 import { FileEntity } from './files/files.entity';
 import { ChatEntity, CronEntity } from './chats/chats.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -29,5 +30,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     }),
     ScheduleModule.forRoot(),
   ],
+  controllers: [AppController],
 })
 export class AppModule {}

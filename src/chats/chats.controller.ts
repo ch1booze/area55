@@ -34,7 +34,7 @@ export class ChatsController {
 
   @Get()
   @Render('chats')
-  async getChatPage(@Req() req: Request) {
+  async renderChats(@Req() req: Request) {
     const userId = req.session.userId!;
     const gottenChats = await this.chatsService.getChats(userId);
     return {

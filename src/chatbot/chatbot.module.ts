@@ -6,7 +6,11 @@ import { ChatsModule } from 'src/chats/chats.module';
 import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [HttpModule, forwardRef(() => ChatsModule), UsersModule],
+  imports: [
+    HttpModule,
+    forwardRef(() => ChatsModule),
+    forwardRef(() => UsersModule),
+  ],
   controllers: [ChatbotController],
   providers: [ChatbotService],
   exports: [ChatbotService],
