@@ -1,101 +1,142 @@
-<!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Chatbot Landing Page</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Area55 – Your AI Assistant</title>
+    <script src='https://cdn.tailwindcss.com'></script>
   </head>
-  <body class="bg-white text-gray-900">
+  <body class='bg-white text-gray-900'>
     <!-- Header -->
-    <header class="flex justify-between items-center px-8 py-6 shadow-md">
-      <div class="text-xl font-bold">AI Chatbot</div>
-      <nav class="hidden md:flex space-x-6">
-        <a href="#" class="hover:text-blue-600">Home</a>
-        <a href="#" class="hover:text-blue-600">Features</a>
-        <a href="#" class="hover:text-blue-600">Pricing</a>
-        <a href="#" class="hover:text-blue-600">Integrations</a>
-        <a href="#" class="hover:text-blue-600">Blog</a>
+    <header
+      class='flex justify-between items-center px-8 py-6 shadow-md relative'
+    >
+      <div class='text-xl font-bold'>Area55</div>
+      <nav class='hidden md:flex space-x-6 items-center'>
+        <a href='#' class='hover:text-blue-600'>About Us</a>
+
+        <!-- Social Dropdown -->
+        <div class='relative group'>
+          <button class='hover:text-blue-600 focus:outline-none'>
+            Social ▾
+          </button>
+          <div
+            class='absolute hidden group-hover:block bg-white border rounded-md shadow-md mt-2 w-40 z-10'
+          >
+            <a
+              href='https://instagram.com/area55'
+              target='_blank'
+              class='block px-4 py-2 text-sm hover:bg-gray-100'
+            >
+              Instagram
+            </a>
+            <a
+              href='https://twitter.com/area55'
+              target='_blank'
+              class='block px-4 py-2 text-sm hover:bg-gray-100'
+            >
+              Twitter
+            </a>
+            <a
+              href='https://linkedin.com/company/area55'
+              target='_blank'
+              class='block px-4 py-2 text-sm hover:bg-gray-100'
+            >
+              LinkedIn
+            </a>
+            <a
+              href='https://wa.me/5511999999999'
+              target='_blank'
+              class='block px-4 py-2 text-sm hover:bg-gray-100'
+            >
+              WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <a href='#' class='hover:text-blue-600'>Blog</a>
       </nav>
-      <div class="flex items-center space-x-4">
-        <a href="/users/signin" class="text-sm">Sign in</a>
+
+      <div class='flex items-center space-x-4'>
         <a
-          href="#"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm shadow"
+          href='/users/signin'
+          class='text-sm bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full'
         >
-          Try For Free →
+          Use on Web
+        </a>
+        <a
+          href='#'
+          class='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm shadow'
+        >
+          Try for Free on WhatsApp →
         </a>
       </div>
     </header>
 
     <!-- Hero Section -->
-    <section class="text-center py-20 px-6">
-      <div class="text-green-500 font-semibold mb-2">
-        • Highly Demanded on App-store •
+    <section class='text-center py-20 px-6'>
+      <div class='text-green-500 font-semibold mb-2'>
+        • Trusted by Brazilians nationwide •
       </div>
-      <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-4">
-        AI-Powered Conversations, <br />
-        Simplified. 🛩️
+      <h1 class='text-4xl md:text-5xl font-bold leading-tight mb-4'>
+        Your AI Assistant,
+        <br />
+        For Everything You Need.
       </h1>
-      <p class="text-gray-600 mb-6">
-        Smart, instant, and 24/7 chatbot to assist your business
+      <p class='text-gray-600 mb-6 max-w-xl mx-auto'>
+        Area55 helps you schedule messages, set reminders, transcribe audio,
+        understand images, and even give you smart shopping tips — all in one
+        simple tool.
       </p>
-      <a
-        href="#"
-        class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full text-lg shadow"
-      >
-        Try For Free →
-      </a>
-      <div class="mt-6 text-sm text-gray-700">
-        <span class="font-bold">10M+</span> Downloads
+      <div class='flex justify-center flex-wrap gap-4'>
+        <a
+          href='#'
+          class='inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full text-lg shadow'
+        >
+          Try for Free on WhatsApp
+        </a>
+        <a
+          href='#'
+          class='inline-block bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-full text-lg shadow'
+        >
+          Download on App Store
+        </a>
       </div>
     </section>
 
     <!-- Features Section -->
     <section
-      class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center px-8 pb-20"
+      class='grid grid-cols-1 md:grid-cols-3 gap-8 text-center px-8 pb-20'
     >
-      <div class="border p-6 rounded-lg shadow-sm">
-        <h3 class="font-semibold mb-2">Create Stunning Images with AI</h3>
-        <p class="text-sm text-gray-600">
-          Simply type a description, and our AI chatbot helps you generate
-          stunning visuals in seconds.
+      <div class='border p-6 rounded-lg shadow-sm'>
+        <h3 class='font-semibold mb-2'>Schedule Messages</h3>
+        <p class='text-sm text-gray-600'>
+          Let Area55 send WhatsApp messages at the right time, automatically.
         </p>
       </div>
 
-      <div class="relative flex flex-col items-center">
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png"
-          alt="Chatbot"
-          class="w-32 h-32 mb-4"
-        />
-        <div class="bg-white p-4 rounded-lg shadow w-full">
-          <p class="text-sm text-left">
-            👩 Hi there! How can I help?
-            <br />
-            🤖 I can answer your questions instantly.
-          </p>
-        </div>
-        <button
-          class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full text-sm"
-        >
-          Send Message →
-        </button>
+      <div class='border p-6 rounded-lg shadow-sm'>
+        <h3 class='font-semibold mb-2'>Reminders & Transcriptions</h3>
+        <p class='text-sm text-gray-600'>
+          Never forget a task again and convert voice notes into clear text in
+          seconds.
+        </p>
       </div>
 
-      <div class="border p-6 rounded-lg shadow-sm">
-        <h3 class="font-semibold mb-2">Chat with any Document</h3>
-        <p class="text-sm text-gray-600">
-          Upload a file to get instant answers. Supports DOC, PDF, and more.
+      <div class='border p-6 rounded-lg shadow-sm'>
+        <h3 class='font-semibold mb-2'>Image & Shopping Insights</h3>
+        <p class='text-sm text-gray-600'>
+          Understand image contents and receive AI-powered shopping advice
+          instantly.
         </p>
       </div>
     </section>
 
     <!-- Testimonial -->
     <div
-      class="max-w-md mx-auto bg-gray-100 p-4 rounded-lg shadow text-sm text-left mb-10"
+      class='max-w-md mx-auto bg-gray-100 p-4 rounded-lg shadow text-sm text-left mb-10'
     >
-      <strong>Jahangir</strong>: Tried many, but this AI stands out! 🔥
+      <strong>Victor</strong>: Area55 has completely streamlined how I manage
+      tasks — it’s like having a personal assistant 24/7. 💡
     </div>
   </body>
 </html>

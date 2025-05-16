@@ -12,24 +12,31 @@
       id='sidebar'
     >
       <div>
-        <div class='p-6 font-bold text-xl border-b'>AI Chat</div>
+        <div class='p-6 font-bold text-xl border-b'>Area55</div>
         <nav class='flex flex-col p-4 space-y-2'>
-          <a href='#' class='hover:bg-gray-200 px-3 py-2 rounded-md'>Chats</a>
-          <a href='#' class='hover:bg-gray-200 px-3 py-2 rounded-md'>Scheduled
-            Messages</a>
-          <a
-            href='#'
-            class='hover:bg-gray-200 px-3 py-2 rounded-md'
-          >Reminders</a>
+          <a href='#' class='bg-gray-200 font-semibold px-3 py-2 rounded-md'>
+            Chats
+          </a>
+          <a href='#' class='hover:bg-gray-200 px-3 py-2 rounded-md'>
+            Scheduled Messages
+          </a>
+          <a href='#' class='hover:bg-gray-200 px-3 py-2 rounded-md'>
+            Reminders
+          </a>
         </nav>
       </div>
 
       <div class='p-4 border-t flex flex-col items-center space-y-3'>
-        <img
-          src='https://i.pravatar.cc/100'
-          alt='Profile'
-          class='w-10 h-10 rounded-full'
-        />
+        <div
+          class='w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold relative group cursor-pointer'
+        >
+          JD
+          <span
+            class='absolute bottom-full mb-2 bg-gray-700 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition'
+          >
+            John Doe
+          </span>
+        </div>
         <button
           class='w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600'
         >
@@ -60,9 +67,12 @@
     </button>
 
     <!-- Chat Area -->
-    <main class='flex-1 ml-0 md:ml-64 overflow-y-auto p-6'>
+    <main
+      class='flex-1 ml-0 md:ml-64 flex flex-col overflow-y-auto p-6 relative'
+    >
       <h2 class='text-2xl font-bold mb-4'>Chat</h2>
-      <div class='chat-wrapper space-y-6'>
+
+      <div class='chat-wrapper space-y-6 mb-28'>
         {{#each chats}}
           <div class='chat bg-white p-4 rounded-lg shadow'>
             <div class='chat-time text-xs text-gray-500 mb-2'>{{time}}</div>
@@ -79,14 +89,62 @@
           </div>
         {{/each}}
       </div>
+
+      <!-- Chat Input -->
+      <div
+        class='fixed bottom-0 left-0 md:left-64 w-full md:w-[calc(100%-16rem)] bg-white px-4 py-3 border-t flex items-center gap-3'
+      >
+        <form
+          action='/chats'
+          method='POST'
+          enctype='multipart/form-data'
+          class='fixed bottom-0 left-0 md:left-64 w-full md:w-[calc(100%-16rem)] bg-white px-4 py-3 border-t flex items-center gap-3'
+        >
+          <input
+            type='text'
+            name='query'
+            placeholder='Type your message...'
+            class='flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+          />
+
+          <label
+            for='file-upload'
+            class='cursor-pointer bg-gray-200 hover:bg-gray-300 px-3 py-2 rounded-md text-sm flex items-center gap-2'
+          >
+            📎
+            <span id='file-name' class='text-xs text-gray-600 hidden'></span>
+          </label>
+          <input
+            type='file'
+            id='file-upload'
+            name='file'
+            class='hidden'
+            accept='image/*,audio/*'
+            onchange='updateFileName(this)'
+          />
+
+          <button
+            type='submit'
+            class='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm'
+          >
+            Send
+          </button>
+        </form>
+
+      </div>
     </main>
 
-    <!-- Optional: Add this for better mobile UX -->
+    <!-- Mobile Click Outside Script -->
     <script>
       const sidebar = document.getElementById('sidebar');
       document.addEventListener('click', function (e) { if
       (!sidebar.contains(e.target) && !e.target.closest('button')) {
-      sidebar.classList.add('-translate-x-full'); } });
+      sidebar.classList.add('-translate-x-full'); } }); function
+      updateFileName(input) { const fileNameSpan =
+      document.getElementById("file-name"); if (input.files && input.files[0]) {
+      fileNameSpan.textContent = input.files[0].name;
+      fileNameSpan.classList.remove("hidden"); } else { fileNameSpan.textContent
+      = ""; fileNameSpan.classList.add("hidden"); } }
     </script>
   </body>
 </html>
