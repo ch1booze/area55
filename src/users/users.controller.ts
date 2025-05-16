@@ -24,7 +24,7 @@ export class UsersController {
   @Redirect()
   async signin(@Body('phoneNumber') phoneNumber: string) {
     await this.usersService.signin(phoneNumber);
-    return { url: `/verify/?phoneNumber=${phoneNumber}` };
+    return { url: `/users/verify/?phoneNumber=${phoneNumber}` };
   }
 
   @Get('signin')
