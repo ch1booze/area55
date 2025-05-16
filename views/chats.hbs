@@ -4,8 +4,13 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
     <title>Chats</title>
     <script src='https://cdn.tailwindcss.com'></script>
+    <link
+      href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap'
+      rel='stylesheet'
+    />
   </head>
-  <body class='flex h-screen bg-gray-100 text-gray-900'>
+  <body class='flex h-screen bg-gray-100 text-gray-900 font-[Poppins]'>
+
     <!-- Sidebar -->
     <aside
       class='w-64 bg-white shadow-md flex flex-col justify-between fixed md:static z-10 h-full md:h-auto transition-transform duration-300 md:translate-x-0 transform -translate-x-full md:transform-none'
@@ -73,21 +78,35 @@
       <h2 class='text-2xl font-bold mb-4'>Chat</h2>
 
       <div class='chat-wrapper space-y-6 mb-28'>
-        {{#each chats}}
-          <div class='chat bg-white p-4 rounded-lg shadow'>
-            <div class='chat-time text-xs text-gray-500 mb-2'>{{time}}</div>
-            <div class='conversation space-y-2'>
-              <div class='message user'>
-                <strong>User:</strong>
-                {{query}}
+        {{#if chats.length}}
+          <div class='space-y-6'>
+            {{#each chats}}
+              <div class='chat bg-white p-4 rounded-lg shadow'>
+                <div class='chat-time text-xs text-gray-500 mb-2'>{{time}}</div>
+                <div class='conversation space-y-2'>
+                  <div class='message user'>
+                    <strong>User:</strong>
+                    {{query}}
+                  </div>
+                  <div class='message ai text-gray-700'>
+                    <strong>AI:</strong>
+                    {{reply}}
+                  </div>
+                </div>
               </div>
-              <div class='message ai text-gray-700'>
-                <strong>AI:</strong>
-                {{reply}}
-              </div>
+            {{/each}}
+          </div>
+        {{else}}
+          <div
+            class='flex items-center justify-center h-full text-gray-500 text-center p-10'
+          >
+            <div>
+              <p class='text-lg font-semibold'>Welcome to Area55 👋</p>
+              <p class='text-sm mt-2'>Start a conversation by typing a message
+                or uploading an image/audio file.</p>
             </div>
           </div>
-        {{/each}}
+        {{/if}}
       </div>
 
       <!-- Chat Input -->

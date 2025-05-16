@@ -1,29 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
     <title>Sign In</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src='https://cdn.tailwindcss.com'></script>
+    <link
+      href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap'
+      rel='stylesheet'
+    />
   </head>
-  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-      <h2 class="text-2xl font-bold mb-4 text-center">Sign In with WhatsApp</h2>
-      <form action="/users/signin" method="POST" class="space-y-4">
+  <body
+    class='bg-gray-100 flex items-center justify-center min-h-screen font-[Poppins]'
+  >
+    <div class='bg-white p-8 rounded-lg shadow-lg w-full max-w-md'>
+      <h2 class='text-2xl font-bold mb-4 text-center'>Sign In with WhatsApp</h2>
+      <form action='/users/signin' method='POST' class='space-y-4'>
         <div>
-          <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number (with country code)</label>
+          <label
+            for='phone'
+            class='block text-sm font-medium text-gray-700'
+          >Phone Number (with country code)</label>
           <input
-            type="tel"
-            id="phoneNumber"
-            name="phoneNumber"
-            placeholder="+551234567890"
+            type='tel'
+            id='phoneNumber'
+            name='phoneNumber'
+            placeholder='+551234567890'
             required
-            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class='mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
           />
         </div>
         <button
-          type="submit"
-          class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+          type='submit'
+          class='w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition'
         >
           Send Verification Code
         </button>
