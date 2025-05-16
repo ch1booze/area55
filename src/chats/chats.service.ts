@@ -254,7 +254,7 @@ export class ChatsService {
   }
 
   async getChats(userId: string) {
-    return this.chatRepository.find({ where: { userId } });
+    return this.chatRepository.find({ where: { userId, isWhatsApp: false } });
   }
 
   private async createCron(dto: CreateCronDto) {

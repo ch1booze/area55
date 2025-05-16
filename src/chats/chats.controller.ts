@@ -1,8 +1,8 @@
 import {
+  Body,
   Controller,
   Get,
   Post,
-  Query,
   Render,
   Req,
   UploadedFile,
@@ -25,7 +25,7 @@ export class ChatsController {
   @UseInterceptors(FileInterceptor('file'))
   async createChat(
     @Req() req: Request,
-    @Query('query') query: string = '',
+    @Body('query') query: string = '',
     @UploadedFile(new FilePipe()) file?: UploadFileDto,
   ) {
     const userId = req.session.userId!;
