@@ -29,7 +29,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UploadFileDto } from 'src/files/files.interfaces';
 import { Cron } from '@nestjs/schedule';
 import { ChatbotService } from 'src/chatbot/chatbot.service';
-import { UserEntity } from 'src/users/users.entity';
 
 @Injectable()
 export class ChatsService {

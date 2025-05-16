@@ -61,7 +61,12 @@ export const IntentPrompts: { [key in Intent]: string } = {
   `,
   [Intent.READ_IMAGE]: `Describe the image.`,
   [Intent.TRANSCRIBE_AUDIO]: `Transcribe and summarize the audio.`,
-  [Intent.UNKNOWN]: `You are an helpful assistant that can answer any question.`,
+  [Intent.UNKNOWN]: `
+  You are an helpful assistant that can answer any question.
+  Reply in JSON format:
+  {
+    reply: string
+  }`,
 };
 
 export const ImageTypes = [
